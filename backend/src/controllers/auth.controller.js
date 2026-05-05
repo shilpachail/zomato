@@ -25,7 +25,11 @@ async function registerUser(req, res) {
         id: user._id,
 }, process.env.JWT_SECRET)
 
-  res.cookie("token" , token)
+  res.cookie("token", token, {
+  httpOnly: true,
+  sameSite: "lax",
+  secure: false,
+});
    res.status(201).json({
     message:"user registerd successfully",
     user: {
@@ -57,7 +61,11 @@ async function loginUser(req,res){
         id:user._id,
     }, process.env.JWT_SECRET)
 
-    res.cookie("token" , token)
+    res.cookie("token", token, {
+  httpOnly: true,
+  sameSite: "lax",
+  secure: false, 
+});
     res.status(200).json({
         message: "user logged in successfully",
         user: {
@@ -104,7 +112,11 @@ async function loginUser(req,res){
         id: foodPartner._id,
      } , process.env.JWT_SECRET)
 
-     res.cookie("token" , token)
+     res.cookie("token", token, {
+  httpOnly: true,
+  sameSite: "lax",
+  secure: false,
+});
 
      res.status(201).json({
         message: " food partner registered successfully",
@@ -143,7 +155,11 @@ async function loginUser(req,res){
         id: foodPartner._id
     }, process.env.JWT_SECRET)
 
-    res.cookie("token", token);
+    res.cookie("token", token, {
+  httpOnly: true,
+  sameSite: "lax",
+  secure: false, 
+});
      
     res.status(200).json({
         message:"food partner logged in sucesssfully",
@@ -163,13 +179,31 @@ async function loginUser(req,res){
  }
 
 
+async function getMe(req, res) {
+    try {
+        const token = req.cookies.token;
 
+        if (!token) {
+            return res.status(401).json({ message: "Not logged in" });
+        }
 
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        return res.status(200).json({
+            message: "User authenticated",
+            user: decoded
+        });
+
+    } catch (err) {
+        return res.status(401).json({ message: "Invalid token" });
+    }
+}
 module.exports = {
     registerUser,
     loginUser,
     logoutUser,
     registerFoodPartner,
     loginFoodPartner,
-    logoutFoodPartner
+    logoutFoodPartner,
+    getMe
 }
